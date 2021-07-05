@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENVIRONMENT: ${CONFIG_TYPE:-development}
+    ports:
+    - '8000:8000'
+    environment:
+      CONFIG_TYPE: ${CONFIG_TYPE}
+      SQLALCHEMY_DATABASE_URI: ${SQLALCHEMY_DATABASE_URI}
+    volumes:
+      - '.:/opt/app'
+    command: ["make", "app"]
