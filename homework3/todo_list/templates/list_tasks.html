@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block styles %}
+  <style>
+    .button, .disabled_button {
+      display: inline-block;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      color: #ffffff;
+      background-color: #7aa8b7;
+      border-radius: 6px;
+      outline: none;
+      margin: 1%;
+    }
+
+    .disabled_button {
+      background-color: #aebfc2;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+  </style>
+{% endblock %}
+{% block data %}
+  {% import 'list_tasks_macros.html' as macros %}
+
+  {{ macros.search_field(cur_status.value, filter=filter) }}
+  {{ macros.manage_buttons(cur_status, filter=filter) }}
+
+  {# list tasks #}
+  {% if tasks.items or tasks.has_prev or tasks.has_next %}
+
+    {{ macros.pagination_buttons(tasks, cur_status.value, filter) }}
+
+    {# content table #}
+    <table style="margin-top: 10px;">
+      {% for task in tasks.items %}
+        {{ macros.render_task(task, cur_status.value, filter, tasks.page) }}
+      {% endfor %}
+    </table>
+
+  {% else %}
+    <b>No tasks</b>
+  {% endif %}
+{% endblock %}

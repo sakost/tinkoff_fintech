@@ -1,0 +1,72 @@
+{% macro search_field(cur_status_str, filter='') -%}
+  <form>
+    <label>
+      Filter by content:
+      <input type="search" name="filter" placeholder="Search..." value="{{ filter if filter else '' }}"/>
+    </label>
+    <input type="hidden" name="status" value="{{ cur_status_str }}">
+  </form>
+{%- endmacro %}
+
+{% macro url_for_tasks(cur_status_str, filter='', page=1) -%}
+  {{ url_for('.tasks', status=cur_status_str, filter=filter, page=page) }}
+{%- endmacro %}
+
+{% macro href_button(href, text, autofocus=False) -%}
+  <a href="{{ href }}" class="button" {%- if autofocus -%}autofocus{%- endif -%}>{{ text }}</a>
+{%- endmacro %}
+
+{% macro manage_buttons(cur_status, filter='') -%}
+  {# all buttons to manage tasks #}
+  <div>
+    {{ href_button(url_for('.new_task'), 'New task', True) }}
+
+    {# active button #}
+    {% if cur_status == cur_status.ACTIVE %}
+      {{ href_button(url_for_tasks(cur_status.ALL.value, filter), 'All') }}
+    {% else %}
+      {{ href_button(url_for_tasks(cur_status.ACTIVE.value, filter), 'Active') }}
+    {% endif %}
+
+    {# finished button #}
+    {% if cur_status == cur_status.FINISHED %}
+      {{ href_button(url_for_tasks(cur_status.ALL.value, filter), 'All') }}
+    {% else %}
+      {{ href_button(url_for_tasks(cur_status.FINISHED.value, filter), 'Finished') }}
+    {% endif %}
+
+  </div>
+{%- endmacro %}
+
+{% macro pagination_buttons(tasks, cur_status_str, filter='') -%}
+  {% if tasks.has_prev or tasks.has_next %}
+    {% if tasks.has_prev %}
+      {{ href_button(url_for_tasks(cur_status_str, filter=filter, page=tasks.prev_num), 'Previous') }}
+    {% else %}
+      <a class="disabled_button">Previous</a>
+    {% endif %}
+
+    {% if tasks.has_next %}
+      {{ href_button(url_for_tasks(cur_status_str, filter=filter, page=tasks.next_num), 'Next') }}
+    {% else %}
+      <a class="disabled_button">Next</a>
+    {% endif %}
+  {% endif %}
+{%- endmacro %}
+
+{% macro render_task(task, cur_status_str, filter, page=1) -%}
+  <tr>
+    <td><input type="submit" value="Finish"
+               onclick="window.location='{{
+                       url_for(
+                               '.done_task',
+                               task_id=task.id,
+                               status=cur_status_str,
+                               page=page,
+                               filter=filter
+                             )
+                       }}'"
+            {% if task.done %} disabled {% endif %}/></td>
+    <td>{{ task.description }}</td>
+  </tr>
+{%- endmacro %}
